@@ -2,20 +2,20 @@
   <img src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=220&section=header&text=Performance%20Schedule&fontSize=50&animation=fadeIn" />
 </p>
 
-## 📌 프로젝트 소개
-> **국내 무용 및 문화 예술 공연 일정을 한눈에 파악하고 비교할 수 있는 Streamlit 기반의 데이터 시각화 대시보드입니다.**
+## 📌 Project Overview
+> **An interactive Streamlit-based data visualization dashboard to explore and compare dance and cultural performance schedules in Korea.**
 
-* 복잡한 공연 데이터(공연명, 공연장, 일정, 티켓 가격 등)를 수집하여 직관적인 차트와 테이블로 제공합니다.
-* 사용자가 원하는 조건에 맞춰 공연 일정을 필터링하고 탐색할 수 있도록 돕습니다.
-
-<br>
-
-## 📅 개발 기간
-* **2026.05 ~ 진행 중 (Final Project)**
+* Gathers scattered performance data (including event names, venues, dates, and ticket prices) into a single, intuitive platform.
+* Enables users to seamlessly filter and discover performance schedules based on their personal preferences.
 
 <br>
 
-## 🛠️ 기술 스택 (Tech Stacks)
+## 📅 Development Period
+* **May 2026 ~ Present (Final Project)**
+
+<br>
+
+## 🛠️ Tech Stacks
 
 <table>
   <tr>
@@ -36,19 +36,19 @@
 
 <br>
 
-## 🚀 주요 기능 (Key Features)
-* 📊 **공연 데이터 시각화:** 대시보드를 통해 티켓 가격 분포, 장르별 비율 등을 그래프로 확인
-* 🔍 **조건별 필터링:** 공연 날짜, 공연장 위치, 가격대에 따른 맞춤형 일정 검색
-* 📅 **스케줄링 대시보드:** 직관적인 UI로 구현된 국내 주요 무용 및 공연 일정표 제공
+## 🚀 Key Features
+* 📊 **Data Visualization:** Provides interactive charts analyzing ticket price distributions and genre ratios.
+* 🔍 **Smart Filtering:** Offers customized searches by performance dates, venue locations, and price ranges.
+* 📅 **Scheduling Dashboard:** Features a clean, user-friendly UI to track upcoming major dance events at a glance.
 
 <br>
 
-## 💻 실행 방법 (How to Run)
-로컬 환경에서 대시보드를 실행하려면 아래 명령어를 순서대로 입력하세요.
+## 💻 How to Run
+To run this dashboard locally, follow these steps in your terminal:
 
 ```bash
-# 1. 필요한 라이브러리 설치
+# 1. Install required libraries
 pip install -r requirements.txt
 
-# 2. Streamlit 서버 실행
+# 2. Run the Streamlit server
 streamlit run app.py
