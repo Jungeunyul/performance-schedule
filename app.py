@@ -111,3 +111,29 @@ if not filtered_df.empty:
         column_config={
             t["col_link"]: st.column_config.LinkColumn(
                 t["col_link"],
+                help="클릭하면 해당 공연의 공식 예매 페이지로 이동합니다" if lang == "한국어" else "Click to open official booking site",
+                display_text="🔗 " + t["col_link"]
+            )
+        }
+    )
+else:
+    st.warning(t["no_data"])
+
+st.markdown("---")
+
+# 9. 데이터 시각화 (차트)
+chart_col1, chart_col2 = st.columns(2)
+
+with chart_col1:
+    st.subheader(t["chart1_title"])
+    if not filtered_df.empty:
+        st.bar_chart(data=filtered_df, x=t["col_name"], y=t["col_price"])
+    else:
+        st.info(t["no_chart_data"])
+
+with chart_col2:
+    st.subheader(t["chart2_title"])
+    if not filtered_df.empty:
+        st.line_chart(data=filtered_df, x=t["col_name"], y=t["col_rate"])
+    else:
+        st.info(t["no_chart_data"])
