@@ -1,77 +1,140 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
-# 1. 페이지 기본 설정 및 제목
-st.set_page_config(page_title="국내 무용 공연 대시보드", layout="wide")
-st.title("🩰 국내 무용 공연 정보 트래킹 대시보드")
-st.markdown("전국 주요 무용 공연의 장르별, 지역별 데이터를 분석하고 비교하는 포트폴리오입니다.")
+# 1. Page Configuration & Title
+st.set_page_config(page_title="K-Dance Stage Hub", layout="wide")
+st.title("🩰 K-Dance Stage Hub: Integrated Dashboard for Dance Performances")
+st.markdown("### Final Project Portfolio by Eunyul Jung (Student ID: 2025310819)")
+st.markdown("This interactive dashboard aggregates and analyzes dance performance data in South Korea, comparing local troupes with international touring companies.")
 st.markdown("---")
 
-# 2. 데이터 불러오기
+# 2. Data Loading with Standardized Schema
 @st.cache_data
 def load_data():
-    # 데이터 타입을 지정하여 불러오기
-    df = pd.read_csv("dance_data.csv")
-    df["시작일"] = pd.to_datetime(df["시작일"])
-    df["종료일"] = pd.to_datetime(df["종료일"])
+    try:
+        df = pd.read_csv("dance_data.csv")
+    except FileNotFoundError:
+        # Create mock data aligned with the proposal if file is not found yet
+        mock_data = {
+            "Performance Name": [
+                "Korea National Ballet: Swan Lake", "Universal Ballet: Giselle", 
+                "Paris Opera Ballet: Giselle Tour", "National Dance Company: Scent of Ink",
+                "Nederlands Dans Theater (NDT) Tour", "Seoul Performing Arts Festival (SPAF)"
+            ],
+            "Genre": ["Ballet", "Ballet", "Ballet", "Traditional Korean", "Contemporary", "Contemporary"],
+            "Origin": ["Local", "Local", "International Tour", "Local", "International Tour", "Local"],
+            "Venue": ["Seoul Arts Center", "Arts Center Incheon", "LG Arts Center", "National Theater of Korea", "LG Arts Center", "Arko Arts Theater"],
+            "Month": ["Jan", "March", "May", "May", "July", "October"],
+            "Ticket Price(KRW)": [80000, 60000, 150000, 50000, 180000, 40000],
+            "Booking Link": ["https://www.interpark.com", "https://www.interpark.com", "https://www.sac.or.kr", "https://www.ntok.go.kr", "https://www.lgart.com", "https://theater.arko.or.kr"]
+        }
+        df = pd.DataFrame(mock_data)
+    
+    # Ensure standard mapping to prevent layout breaking
+    column_mapping = {
+        "공연명": "Performance Name", "장르": "Genre", "구분": "Origin", "단체구분": "Origin",
+        "공연장": "Venue", "월": "Month", "티켓가격": "Ticket Price(KRW)", "가격": "Ticket Price(KRW)",
+        "예매링크": "Booking Link"
+    }
+    df = df.rename(columns=column_mapping)
     return df
 
-try:
-    df = load_data()
+df = load_data()
 
-    # 3. 사이드바 필터 구성
-    st.sidebar.header("🔍 데이터 필터링")
-    
-    # 장르 선택
-    genres = st.sidebar.multiselect("장르 선택", options=df["장르"].unique(), default=df["장르"].unique())
-    # 지역 선택
-    regions = st.sidebar.multiselect("지역 선택", options=df["지역"].unique(), default=df["지역"].unique())
-    
-    # 필터링 적용
-    filtered_df = df[df["장르"].isin(genres) & df["지역"].isin(regions)]
+# 3. Sidebar Filters (Key Feature 1: Performance Filtering)
+st.sidebar.header("🔍 Filter Options")
 
-    # 4. 상단 요약 지표 (Metrics)
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("총 공연 건수", f"{len(filtered_df)} 건")
-    with col2:
-        avg_price = filtered_df["티켓가격(원)"].mean() if not filtered_df.empty else 0
-        st.metric("평균 티켓 가격", f"{int(avg_price):,} 원")
-    with col3:
-        avg_rate = filtered_df["예매율(%)"].mean() if not filtered_df.empty else 0
-        st.metric("평균 예매율", f"{avg_rate:.1f} %")
+# Filter by Genre
+if "Genre" in df.columns:
+    genre_options = df["Genre"].unique()
+    selected_genres = st.sidebar.multiselect("Select Genre", options=genre_options, default=genre_options)
+else:
+    selected_genres = []
 
-    st.markdown("---")
+# Filter by Origin (Local vs International Tour)
+if "Origin" in df.columns:
+    origin_options = df["Origin"].unique()
+    selected_origins = st.sidebar.multiselect("Select Origin", options=origin_options, default=origin_options)
+else:
+    selected_origins = []
 
-    # 5. 데이터 테이블 출력
-    st.subheader("📊 필터링된 공연 상세 정보")
+# Apply Sidebar Filters
+filtered_df = df.copy()
+if selected_genres:
+    filtered_df = filtered_df[filtered_df["Genre"].isin(selected_genres)]
+if selected_origins:
+    filtered_df = filtered_df[filtered_df["Origin"].isin(selected_origins)]
+
+# 4. Top Summary Metrics
+st.markdown("### 📊 Key Metrics")
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Total Tracked Shows", f"{len(filtered_df)} Events")
+with col2:
+    avg_price = filtered_df["Ticket Price(KRW)"].mean() if not filtered_df.empty else 0
+    st.metric("Average Ticket Price", f"{int(avg_price):,} KRW")
+with col3:
+    local_count = len(filtered_df[filtered_df["Origin"] == "Local"]) if not filtered_df.empty else 0
+    st.metric("Local Troupe Shows", f"{local_count} Events")
+
+st.markdown("---")
+
+# 5. Advanced Visualizations (Key Features 2 & 3)
+chart_col1, chart_col2 = st.columns(2)
+
+with chart_col1:
+    st.subheader("💰 Price Analysis by Venue & Origin")
     if not filtered_df.empty:
-        # 날짜 포맷을 예쁘게 바꿔서 출력
-        display_df = filtered_df.copy()
-        display_df["시작일"] = display_df["시작일"].dt.strftime('%Y-%m-%d')
-        display_df["종료일"] = display_df["종료일"].dt.strftime('%Y-%m-%d')
-        st.dataframe(display_df, use_container_width=True)
+        # Plotly Bar chart for professional comparison
+        fig_price = px.bar(
+            filtered_df, 
+            x="Venue", 
+            y="Ticket Price(KRW)", 
+            color="Origin",
+            barmode="group",
+            text="Performance Name",
+            title="Ticket Price Distribution Across Venues",
+            labels={"Ticket Price(KRW)": "Price (KRW)", "Venue": "Performance Venue"},
+            color_discrete_map={"Local": "#1f77b4", "International Tour": "#ff7f0e"}
+        )
+        st.plotly_chart(fig_price, use_container_width=True)
     else:
-        st.warning("선택한 조건에 맞는 공연 데이터가 없습니다.")
+        st.info("No data available to display the price chart.")
 
-    st.markdown("---")
+with chart_col2:
+    st.subheader("📅 Monthly Frequency Tracking (Peak Seasons)")
+    if not filtered_df.empty:
+        # Define month order for correct chronological display
+        month_order = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"]
+        
+        fig_month = px.histogram(
+            filtered_df,
+            x="Month",
+            color="Genre",
+            title="Dance Shows Distribution Throughout the Year",
+            category_orders={"Month": month_order},
+            labels={"Month": "Month of the Year", "count": "Number of Shows"}
+        )
+        st.plotly_chart(fig_month, use_container_width=True)
+    else:
+        st.info("No data available to display the monthly trends.")
 
-    # 6. 데이터 시각화 (차트)
-    chart_col1, chart_col2 = st.columns(2)
+st.markdown("---")
+
+# 6. Interactive Data Table (Key Feature 4)
+st.subheader("📋 Interactive Data Schedule & Booking")
+if not filtered_df.empty:
+    st.markdown("Search, sort, or explore the current dance schedule below:")
     
-    with chart_col1:
-        st.subheader("💰 공연별 티켓 가격 비교")
-        if not filtered_df.empty:
-            st.bar_chart(data=filtered_df, x="공연명", y="티켓가격(원)")
-        else:
-            st.info("시각화할 데이터가 없습니다.")
-
-    with chart_col2:
-        st.subheader("📈 공연별 예매율 추이")
-        if not filtered_df.empty:
-            st.line_chart(data=filtered_df, x="공연명", y="예매율(%)")
-        else:
-            st.info("시각화할 데이터가 없습니다.")
-
-except FileNotFoundError:
-    st.error("`dance_data.csv` 파일을 찾을 수 없습니다. 파이썬 파일과 같은 폴더에 위치해 있는지 확인해 주세요.")
+    # Display the dataset beautifully
+    st.dataframe(filtered_df, use_container_width=True)
+    
+    # Quick Link Access Section
+    st.markdown("**🔗 Quick Access to Ticketing Platforms:**")
+    link_cols = st.columns(len(filtered_df.head(4)))
+    for idx, row in filtered_df.head(4).iterrows():
+        with link_cols[idx % 4]:
+            st.link_button(f"🎟️ {row['Performance Name'][:20]}...", row['Booking Link'])
+else:
+    st.warning("No performance data matches the selected filters.")
