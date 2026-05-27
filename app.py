@@ -1,160 +1,71 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 
-# 1. Page Configuration & Title
-st.set_page_config(page_title="K-Dance Stage Hub", layout="wide")
-st.title("🩰 K-Dance Stage Hub: Integrated Dashboard for Dance Performances")
-st.markdown("### Final Project Portfolio by Eunyul Jung (Student ID: 2025310819)")
-st.markdown("This interactive dashboard aggregates and analyzes dance performance data in South Korea, comparing local troupes with international touring companies.")
+# 1. 페이지 기본 설정 및 제목
+st.set_page_config(page_title="국내 무용 공연 대시보드", layout="wide")
+st.title("🩰 국내 무용 공연 정보 트래킹 대시보드")
+st.markdown("전국 주요 무용 공연의 장르별, 지역별 데이터를 분석하고 비교하는 포트폴리오입니다.")
 st.markdown("---")
 
-# 2. Data Loading & Dynamic Column Matching (Prevents KeyError)
-@st.cache_data
-def load_data():
-    try:
-        df = pd.read_csv("dance_data.csv")
-        
-        # --- SMART COLUMN MAPPING ---
-        # Checks what columns actually exist in your CSV and maps them safely
-        cols = df.columns
-        
-        # 1. Performance Name Mapping
-        name_col = next((c for c in cols if c in ["공연명", "Performance Name", "Performance", "Title", "name"]), None)
-        if name_col: df = df.rename(columns={name_col: "Performance Name"})
-        else: df["Performance Name"] = "Unnamed Performance"
-            
-        # 2. Genre Mapping
-        genre_col = next((c for c in cols if c in ["장르", "Genre", "genre"]), None)
-        if genre_col: df = df.rename(columns={genre_col: "Genre"})
-        else: df["Genre"] = "General"
-            
-        # 3. Origin Mapping (Local vs International)
-        origin_col = next((c for c in cols if c in ["구분", "단체구분", "Origin", "origin", "Type"]), None)
-        if origin_col: df = df.rename(columns={origin_col: "Origin"})
-        else: df["Origin"] = "Local" # Default fallback
-            
-        # 4. Venue Mapping
-        venue_col = next((c for c in cols if c in ["공연장", "Venue", "venue", "Location"]), None)
-        if venue_col: df = df.rename(columns={venue_col: "Venue"})
-        else: df["Venue"] = "Various Venues"
-            
-        # 5. Month Mapping
-        month_col = next((c for c in cols if c in ["월", "Month", "month", "시작일", "Date"]), None)
-        if month_col: df = df.rename(columns={month_col: "Month"})
-        else: df["Month"] = "May"
-            
-        # 6. Ticket Price Mapping (Crucial Fix for KeyError!)
-        price_col = next((c for c in cols if "가격" in c or "Price" in c or "price" in c or "티켓" in c), None)
-        if price_col: 
-            df = df.rename(columns={price_col: "Ticket Price(KRW)"})
-            # Convert to numeric safely, removing commas if any
-            df["Ticket Price(KRW)"] = pd.to_numeric(df["Ticket Price(KRW)"].astype(str).str.replace(r'[^\d]', '', regex=True), errors='coerce').fillna(0)
-        else: 
-            df["Ticket Price(KRW)"] = 0
-            
-        # 7. Booking Link Mapping
-        link_col = next((c for c in cols if "링크" in c or "Link" in c or "link" in c or "URL" in c), None)
-        if link_col: df = df.rename(columns={link_col: "Booking Link"})
-        else: df["Booking Link"] = "https://www.interpark.com"
+# 2. 데이터 직접 정의 (줄바꿈 및 인코딩 에러 원천 차단)
+data = [
+    {"공연명": "국립발레단 <지젤>", "단체명": "국립발레단", "장르": "발레", "공연장": "예술의전당 오페라극장", "지역": "서울", "티켓가격(원)": 60000, "예매율(%)": 92.5},
+    {"공연명": "유니버설발레단 <백조의 호수>", "단체명": "유니버설발레단", "장르": "발레", "공연장": "세종문화회관 대극장", "지역": "서울", "티켓가격(원)": 80000, "예매율(%)": 88.1},
+    {"공연명": "국립현대무용단 <공간의 몸짓>", "단체명": "국립현대무용단", "장르": "현대무용", "공연장": "대학로 예술극장 대극장", "지역": "서울", "티켓가격(원)": 30000, "예매율(%)": 75.4},
+    {"공연명": "LDP무용단 <국경 대치>", "단체명": "LDP무용단", "장르": "현대무용", "공연장": "서강대학교 메리홀", "지역": "서울", "티켓가격(원)": 25000, "예매율(%)": 81.0},
+    {"공연명": "국립무용단 <전통의 향연>", "단체명": "국립무용단", "장르": "한국무용", "공연장": "국립극장 해오름극장", "지역": "서울", "티켓가격(원)": 40000, "예매율(%)": 84.3},
+    {"공연명": "경기도무용단 <련(蓮)>", "단체명": "경기도무용단", "장르": "한국무용", "공연장": "경기아트센터 대극장", "지역": "경기", "티켓가격(원)": 20000, "예매율(%)": 69.8},
+    {"공연명": "광주시립발레단 <돈키호테>", "단체명": "광주시립발레단", "장르": "발레", "공연장": "광주예술의전당", "지역": "광주", "티켓가격(원)": 30000, "예매율(%)": 78.2},
+    {"공연명": "대구시립무용단 <몸의 언어>", "단체명": "대구시립무용단", "장르": "현대무용", "공연장": "대구문화예술회관", "지역": "대구", "티켓가격(원)": 15000, "예매율(%)": 62.4},
+    {"공연명": "파리 오페라 발레단 <백조의 호수>", "단체명": "파리 오페라 발레단", "장르": "발레", "공연장": "예술의전당 오페라극장", "지역": "서울(내한)", "티켓가격(원)": 120000, "예매율(%)": 98.2},
+    {"공연명": "영국 로열 발레단 <돈키호테>", "단체명": "영국 로열 발레단", "장르": "발레", "공연장": "세종문화회관 대극장", "지역": "서울(내한)", "티켓가격(원)": 150000, "예매율(%)": 95.4},
+    {"공연명": "피나 바우쉬 부퍼탈 탄츠테아터 <봄의 제전>", "단체명": "부퍼탈 탄츠테아터", "장르": "현대무용", "공연장": "LG아트센터 서울", "지역": "서울(내한)", "티켓가격(원)": 90000, "예매율(%)": 91.0}
+]
+df = pd.DataFrame(data)
 
-    except FileNotFoundError:
-        # Fallback Mock Data if file reading completely fails
-        mock_data = {
-            "Performance Name": ["Korea National Ballet: Swan Lake", "Universal Ballet: Giselle", "Paris Opera Ballet: Giselle Tour", "National Dance Company: Scent of Ink"],
-            "Genre": ["Ballet", "Ballet", "Ballet", "Traditional Korean"],
-            "Origin": ["Local", "Local", "International Tour", "Local"],
-            "Venue": ["Seoul Arts Center", "Arts Center Incheon", "LG Arts Center", "National Theater of Korea"],
-            "Month": ["Jan", "March", "May", "May"],
-            "Ticket Price(KRW)": [80000, 60000, 150000, 50000],
-            "Booking Link": ["https://www.interpark.com", "https://www.interpark.com", "https://www.sac.or.kr", "https://www.ntok.go.kr"]
-        }
-        df = pd.DataFrame(mock_data)
-        
-    return df
+# 3. 사이드바 필터 구성
+st.sidebar.header("🔍 데이터 필터링")
+genres = st.sidebar.multiselect("장르 선택", options=df["장르"].unique(), default=df["장르"].unique())
+regions = st.sidebar.multiselect("지역 선택", options=df["지역"].unique(), default=df["지역"].unique())
 
-df = load_data()
+# 필터링 적용
+filtered_df = df[df["장르"].isin(genres) & df["지역"].isin(regions)]
 
-# 3. Sidebar Filters
-st.sidebar.header("🔍 Filter Options")
-
-# Filter by Genre
-genre_options = df["Genre"].unique()
-selected_genres = st.sidebar.multiselect("Select Genre", options=genre_options, default=genre_options)
-
-# Filter by Origin
-origin_options = df["Origin"].unique()
-selected_origins = st.sidebar.multiselect("Select Origin", options=origin_options, default=origin_options)
-
-# Apply Sidebar Filters Safely
-filtered_df = df.copy()
-if selected_genres:
-    filtered_df = filtered_df[filtered_df["Genre"].isin(selected_genres)]
-if selected_origins:
-    filtered_df = filtered_df[filtered_df["Origin"].isin(selected_origins)]
-
-# 4. Top Summary Metrics
-st.markdown("### 📊 Key Metrics")
+# 4. 상단 요약 지표 (Metrics)
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Total Tracked Shows", f"{len(filtered_df)} Events")
+    st.metric("총 공연 건수", f"{len(filtered_df)} 건")
 with col2:
-    avg_price = filtered_df["Ticket Price(KRW)"].mean() if not filtered_df.empty else 0
-    st.metric("Average Ticket Price", f"{int(avg_price):,} KRW")
+    avg_price = filtered_df["티켓가격(원)"].mean() if not filtered_df.empty else 0
+    st.metric("평균 티켓 가격", f"{int(avg_price):,} 원")
 with col3:
-    local_count = len(filtered_df[filtered_df["Origin"] == "Local"]) if not filtered_df.empty else 0
-    st.metric("Local Troupe Shows", f"{local_count} Events")
+    avg_rate = filtered_df["예매율(%)"].mean() if not filtered_df.empty else 0
+    st.metric("평균 예매율", f"{avg_rate:.1f} %")
 
 st.markdown("---")
 
-# 5. Advanced Visualizations
+# 5. 데이터 테이블 출력
+st.subheader("📊 필터링된 공연 상세 정보")
+if not filtered_df.empty:
+    st.dataframe(filtered_df, use_container_width=True)
+else:
+    st.warning("선택한 조건에 맞는 공연 데이터가 없습니다.")
+
+st.markdown("---")
+
+# 6. 데이터 시각화 (차트)
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.subheader("💰 Price Analysis by Venue & Origin")
-    if not filtered_df.empty and filtered_df["Ticket Price(KRW)"].sum() > 0:
-        fig_price = px.bar(
-            filtered_df, 
-            x="Venue", 
-            y="Ticket Price(KRW)", 
-            color="Origin",
-            barmode="group",
-            text="Performance Name",
-            title="Ticket Price Distribution Across Venues",
-            labels={"Ticket Price(KRW)": "Price (KRW)", "Venue": "Performance Venue"}
-        )
-        st.plotly_chart(fig_price, use_container_width=True)
+    st.subheader("💰 공연별 티켓 가격 비교")
+    if not filtered_df.empty:
+        st.bar_chart(data=filtered_df, x="공연명", y="티켓가격(원)")
     else:
-        st.info("No price data available or price values are zero.")
+        st.info("시각화할 데이터가 없습니다.")
 
 with chart_col2:
-    st.subheader("📅 Monthly Frequency Tracking (Peak Seasons)")
+    st.subheader("📈 공연별 예매율 추이")
     if not filtered_df.empty:
-        fig_month = px.histogram(
-            filtered_df,
-            x="Month",
-            color="Genre",
-            title="Dance Shows Distribution Throughout the Year",
-            labels={"Month": "Timeline / Month", "count": "Number of Shows"}
-        )
-        st.plotly_chart(fig_month, use_container_width=True)
+        st.line_chart(data=filtered_df, x="공연명", y="예매율(%)")
     else:
-        st.info("No timeline data available to display.")
-
-st.markdown("---")
-
-# 6. Interactive Data Table
-st.subheader("📋 Interactive Data Schedule & Booking")
-if not filtered_df.empty:
-    st.markdown("Search, sort, or explore the current dance schedule below:")
-    st.dataframe(filtered_df, use_container_width=True)
-    
-    st.markdown("**🔗 Quick Access to Ticketing Platforms:**")
-    valid_links = filtered_df.dropna(subset=["Booking Link"])
-    if not valid_links.empty:
-        link_cols = st.columns(min(len(valid_links), 4))
-        for idx, (_, row) in enumerate(valid_links.head(4).iterrows()):
-            with link_cols[idx]:
-                st.link_button(f"🎟️ {str(row['Performance Name'])[:15]}...", str(row['Booking Link']))
-else:
-    st.warning("No performance data matches the selected filters.")
+        st.info("시각화할 데이터가 없습니다.")
