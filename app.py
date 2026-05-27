@@ -50,7 +50,7 @@ text_data = {
 
 t = text_data[lang]
 
-# 4. 데이터 정의 (일정 및 인터파크/예술의전당 대형 예매처 링크 추가)
+# 4. 데이터 정의 (일정 및 예매처 링크 포함)
 data = [
     {"공연명": "국립발레단 <지젤>", "단체명": "국립발레단", "장르": "발레", "공연장": "예술의전당 오페라극장", "지역": "서울", "티켓가격(원)": 60000, "예매율(%)": 92.5, "시작일": "2026-06-01", "종료일": "2026-06-07", "예매하기": "https://tickets.interpark.com"},
     {"공연명": "유니버설발레단 <백조의 호수>", "단체명": "유니버설발레단", "장르": "발레", "공연장": "세종문화회관 대극장", "지역": "서울", "티켓가격(원)": 80000, "예매율(%)": 88.1, "시작일": "2026-06-15", "종료일": "2026-06-22", "예매하기": "https://tickets.interpark.com"},
@@ -70,7 +70,7 @@ if lang == "English":
     df["장르"] = df["장르"].map({"발레": "Ballet", "현대무용": "Contemporary", "한국무용": "Traditional"})
     df["지역"] = df["지역"].map({"서울": "Seoul", "경기": "Gyeonggi", "광주": "Gwangju", "대구": "Daegu", "서울(내한)": "Seoul(International)"})
 
-# 표 컬럼명 매핑 변환
+# 표 컬럼명 변환
 df_display = df.rename(columns={
     "공연명": t["col_name"], "단체명": t["col_group"], "장르": t["col_genre"],
     "공연장": t["col_venue"], "지역": t["col_region"], "티켓가격(원)": t["col_price"], 
@@ -82,5 +82,58 @@ st.title(t["title"])
 st.markdown(t["sub"])
 st.markdown("---")
 
-# 6. 사이드바 필터 동작
-st.sidebar.header(
+# 6. 사이드바 필터 동작 (에러가 나던 괄호 부분을 완벽하게 수정했습니다)
+st.sidebar.header(t["filter_header"])
+genres = st.sidebar.multiselect(t["genre_label"], options=df_display[t["col_genre"]].unique(), default=df_display[t["col_genre"]].unique())
+regions = st.sidebar.multiselect(t["region_label"], options=df_display[t["col_region"]].unique(), default=df_display[t["col_region"]].unique())
+
+filtered_df = df_display[df_display[t["col_genre"]].isin(genres) & df_display[t["col_region"]].isin(regions)]
+
+# 7. 상단 요약 지표 (Metrics)
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric(t["metric_count"], f"{len(filtered_df)} " + ("Items" if lang == "English" else "건"))
+with col2:
+    avg_price = filtered_df[t["col_price"]].mean() if not filtered_df.empty else 0
+    st.metric(t["metric_price"], f"{int(avg_price):,} KRW" if lang == "English" else f"{int(avg_price):,} 원")
+with col3:
+    avg_rate = filtered_df[t["col_rate"]].mean() if not filtered_df.empty else 0
+    st.metric(t["metric_rate"], f"{avg_rate:.1f} %")
+
+st.markdown("---")
+
+# 8. 데이터 테이블 출력 및 하이퍼링크 설정
+st.subheader(t["table_title"])
+if not filtered_df.empty:
+    st.dataframe(
+        filtered_df, 
+        use_container_width=True,
+        column_config={
+            t["col_link"]: st.column_config.LinkColumn(
+                t["col_link"],
+                help="클릭하면 예매 사이트로 이동합니다" if lang == "한국어" else "Click to open booking site",
+                display_text="🔗 " + t["col_link"]
+            )
+        }
+    )
+else:
+    st.warning(t["no_data"])
+
+st.markdown("---")
+
+# 9. 데이터 시각화 (차트)
+chart_col1, chart_col2 = st.columns(2)
+
+with chart_col1:
+    st.subheader(t["chart1_title"])
+    if not filtered_df.empty:
+        st.bar_chart(data=filtered_df, x=t["col_name"], y=t["col_price"])
+    else:
+        st.info(t["no_chart_data"])
+
+with chart_col2:
+    st.subheader(t["chart2_title"])
+    if not filtered_df.empty:
+        st.line_chart(data=filtered_df, x=t["col_name"], y=t["col_rate"])
+    else:
+        st.info(t["no_chart_data"])
