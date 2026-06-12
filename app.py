@@ -13,44 +13,58 @@ text_data = {
     "한국어": {
         "title": "🩰 국내 무용 공연 정보 트래킹 대시보드",
         "sub": "전국 주요 무용 공연의 장르별, 지역별 데이터를 분석하고 비교하는 포트폴리오입니다.",
+        "guide_title": "💡 처음 만나는 무용 장르 가이드 (전공자가 알려주는 꿀팁)",
+        "guide_ballet": "**발레 (Ballet):** 신체의 연장과 우아한 도약을 중심으로 한 클래식 무용의 정수입니다.",
+        "guide_contemporary": "**현대무용 (Contemporary):** 정형화된 규칙을 깨고 인간 고유의 감정과 자유로운 호흡을 표현하는 예술입니다.",
+        "guide_traditional": "**한국무용 (Traditional):** 정중동(靜中動)의 미학, 깊은 호흡과 버선코의 곡선이 만드는 우리 고유의 춤입니다.",
         "filter_header": "🔍 데이터 필터링",
         "genre_label": "장르 선택",
         "region_label": "지역 선택",
+        "month_label": "관람 월(Month) 선택",
+        "price_label": "티켓 가격 범위 (원)",
         "metric_count": "총 공연 건수",
         "metric_price": "평균 티켓 가격",
         "metric_rate": "평균 예매율",
-        "table_title": "📊 필터링된 공연 상세 정보 (클릭 시 진짜 예매 페이지로 이동)",
+        "table_title": "📊 필터링된 공연 상세 정보 (링크 클릭 시 해당 페이지로 이동)",
         "no_data": "선택한 조건에 맞는 공연 데이터가 없습니다.",
         "chart1_title": "💰 공연별 티켓 가격 비교",
         "chart2_title": "📈 공연별 예매율 추이",
         "no_chart_data": "시각화할 데이터가 없습니다.",
         "col_name": "공연명", "col_group": "단체명", "col_genre": "장르", 
         "col_venue": "공연장", "col_region": "지역", "col_price": "티켓가격(원)", 
-        "col_rate": "예매율(%)", "col_start": "시작일", "col_end": "종료일", "col_link": "예매하기"
+        "col_rate": "예매율(%)", "col_start": "시작일", "col_end": "종료일", 
+        "col_link": "예매하기", "col_map": "공연장 위치"
     },
     "English": {
         "title": "🩰 Korea Dance Performance Tracking Dashboard",
         "sub": "A portfolio analyzing and comparing major dance performances by genre and region in Korea.",
+        "guide_title": "💡 Quick Guide to Dance Genres (Major's Perspective)",
+        "guide_ballet": "**Ballet:** The essence of classical dance centered on the extension of the body and elegant leaps.",
+        "guide_contemporary": "**Contemporary:** An art that breaks formalized rules to express human emotions and free breathing.",
+        "guide_traditional": "**Traditional Korean Dance:** The aesthetics of stillness in motion, created by deep breathing and elegant curves.",
         "filter_header": "🔍 Data Filtering",
         "genre_label": "Select Genre",
         "region_label": "Select Region",
+        "month_label": "Select Month",
+        "price_label": "Ticket Price Range (KRW)",
         "metric_count": "Total Performances",
         "metric_price": "Average Ticket Price",
         "metric_rate": "Average Booking Rate",
-        "table_title": "📊 Filtered Performance Details (Click Link to Official Booking Site)",
+        "table_title": "📊 Filtered Performance Details (Click Links to Open)",
         "no_data": "No performance data matches the selected criteria.",
         "chart1_title": "💰 Ticket Price Comparison by Performance",
         "chart2_title": "📈 Booking Rate Trend by Performance",
         "no_chart_data": "No data available for visualization.",
         "col_name": "Performance", "col_group": "Organization", "col_genre": "Genre", 
         "col_venue": "Venue", "col_region": "Region", "col_price": "Price(KRW)", 
-        "col_rate": "Booking Rate(%)", "col_start": "Start Date", "col_end": "End Date", "col_link": "Book Now"
+        "col_rate": "Booking Rate(%)", "col_start": "Start Date", "col_end": "End Date", 
+        "col_link": "Book Now", "col_map": "Venue Map"
     }
 }
 
 t = text_data[lang]
 
-# 4. 거장들의 라인업(크리스탈 파이트, 에크만, 방랑자)이 추가된 총 25개 데이터 정의
+# 4. 데이터 정의 및 카카오맵 검색 주소 연동 데이터 추가
 data = [
     {"공연명": "국립발레단 <지젤>", "단체명": "국립발레단", "장르": "발레", "공연장": "예술의전당 오페라극장", "지역": "서울", "티켓가격(원)": 60000, "예매율(%)": 92.5, "시작일": "2026-06-01", "종료일": "2026-06-07", "예매하기": "https://www.sac.or.kr/site/main/program/program_list"},
     {"공연명": "유니버설발레단 <백조의 호수>", "단체명": "유니버설발레단", "장르": "발레", "공연장": "세종문화회관 대극장", "지역": "서울", "티켓가격(원)": 80000, "예매율(%)": 88.1, "시작일": "2026-06-15", "종료일": "2026-06-22", "예매하기": "https://www.sejongpac.or.kr/portal/performance/perf/list.do"},
@@ -63,12 +77,9 @@ data = [
     {"공연명": "파리 오페라 발레단 <백조의 호수>", "단체명": "파리 오페라 발레단", "장르": "발레", "공연장": "예술의전당 오페라극장", "지역": "서울(내한)", "티켓가격(원)": 120000, "예매율(%)": 98.2, "시작일": "2026-08-10", "종료일": "2026-08-15", "예매하기": "https://www.sac.or.kr/site/main/program/program_list"},
     {"공연명": "영국 로열 발레단 <돈키호테>", "단체명": "영국 로열 발레단", "장르": "발레", "공연장": "세종문화회관 대극장", "지역": "서울(내한)", "티켓가격(원)": 150000, "예매율(%)": 95.4, "시작일": "2026-09-01", "종료일": "2026-09-05", "예매하기": "https://www.sejongpac.or.kr/portal/performance/perf/list.do"},
     {"공연명": "피나 바우쉬 부퍼탈 탄츠테아터 <봄의 제전>", "단체명": "부퍼탈 탄츠테아터", "장르": "현대무용", "공연장": "LG아트센터 서울", "지역": "서울(내한)", "티켓가격(원)": 90000, "예매율(%)": 91.0, "시작일": "2026-10-12", "종료일": "2026-10-15", "예매하기": "https://www.lgart.com/product/list"},
-    
-    # ⭐ [NEW] 요청하신 핵심 공연 3가지 추가 및 LG아트센터 주소 연동
     {"공연명": "크리스탈 파이트 & 키드 피봇 <어셈블리 홀>", "단체명": "Kid Pivot", "장르": "현대무용", "공연장": "LG아트센터 서울", "지역": "서울(내한)", "티켓가격(원)": 100000, "예매율(%)": 96.5, "시작일": "2026-06-05", "종료일": "2026-06-07", "예매하기": "https://www.lgart.com/product/list"},
     {"공연명": "알렉산더 에크만 <한여름 밤의 꿈>", "단체명": "유테보리 오페라 무용단", "장르": "현대무용", "공연장": "LG아트센터 서울", "지역": "서울(내한)", "티켓가격(원)": 95000, "예매율(%)": 94.8, "시작일": "2026-07-17", "종료일": "2026-07-19", "예매하기": "https://www.lgart.com/product/list"},
     {"공연명": "국립무용단 <방랑자>", "단체명": "국립무용단", "장르": "한국무용", "공연장": "국립극장 해오름극장", "지역": "서울", "티켓가격(원)": 45000, "예매율(%)": 87.2, "시작일": "2026-11-20", "종료일": "2026-11-23", "예매하기": "https://www.ntok.go.kr/kr/Ticket/Performance/List"},
-    
     {"공연명": "국립발레단 <호두까기인형>", "단체명": "국립발레단", "장르": "발레", "공연장": "예술의전당 오페라극장", "지역": "서울", "티켓가격(원)": 70000, "예매율(%)": 99.1, "시작일": "2026-12-15", "종료일": "2026-12-25", "예매하기": "https://www.sac.or.kr/site/main/program/program_list"},
     {"공연명": "유니버설발레단 <더 발레리나>", "단체명": "유니버설발레단", "장르": "발레", "공연장": "예술의전당 CJ토월극장", "지역": "서울", "티켓가격(원)": 50000, "예매율(%)": 83.5, "시작일": "2026-05-20", "종료일": "2026-05-25", "예매하기": "https://www.sac.or.kr/site/main/program/program_list"},
     {"공연명": "국립무용단 <향연(饗宴)>", "단체명": "국립무용단", "장르": "한국무용", "공연장": "국립극장 해오름극장", "지역": "서울", "티켓가격(원)": 50000, "예매율(%)": 91.2, "시작일": "2026-09-17", "종료일": "2026-09-21", "예매하기": "https://www.ntok.go.kr/kr/Ticket/Performance/List"},
@@ -83,6 +94,13 @@ data = [
 ]
 df = pd.DataFrame(data)
 
+# 아이디어 1: 월(Month) 추출 로직 및 영어 변환 사전 정의
+df["월"] = pd.to_datetime(df["시작일"]).dt.month
+df["월_display"] = df["월"].map(lambda x: f"{x}월" if lang == "한국어" else f"Month {x}")
+
+# 아이디어 3: 공연장명을 카카오맵 검색 링크로 매핑해주는 파생 컬럼 생성
+df["공연장위치"] = df["공연장"].map(lambda x: f"https://map.kakao.com/?q={x.replace(' ', '+')}")
+
 if lang == "English":
     df["장르"] = df["장르"].map({"발레": "Ballet", "현대무용": "Contemporary", "한국무용": "Traditional"})
     df["지역"] = df["지역"].map({
@@ -90,24 +108,47 @@ if lang == "English":
         "부산": "Busan", "인천": "Incheon", "서울(내한)": "Seoul(International)"
     })
 
-# 표 컬럼명 변환
+# 표 컬럼명 변환 (새 필드 col_map 포함)
 df_display = df.rename(columns={
     "공연명": t["col_name"], "단체명": t["col_group"], "장르": t["col_genre"],
     "공연장": t["col_venue"], "지역": t["col_region"], "티켓가격(원)": t["col_price"], 
-    "예매율(%)": t["col_rate"], "시작일": t["col_start"], "종료일": t["col_end"], "예매하기": t["col_link"]
+    "예매율(%)": t["col_rate"], "시작일": t["col_start"], "종료일": t["col_end"], 
+    "예매하기": t["col_link"], "공연장위치": t["col_map"]
 })
 
-# 5. 메인 화면 타이틀 출력
+# 5. 메인 화면 타이틀 및 상단 가이드 출력
 st.title(t["title"])
 st.markdown(t["sub"])
+
+# 아이디어 4: 춤알못을 위한 전공자 추천 장르 가이드 (Expander)
+with st.expander(t["guide_title"]):
+    st.markdown(f"- {t['guide_ballet']}")
+    st.markdown(f"- {t['guide_contemporary']}")
+    st.markdown(f"- {t['guide_traditional']}")
+
 st.markdown("---")
 
-# 6. 사이드바 필터 동작
+# 6. 사이드바 필터 동작 대폭 강화
 st.sidebar.header(t["filter_header"])
 genres = st.sidebar.multiselect(t["genre_label"], options=df_display[t["col_genre"]].unique(), default=df_display[t["col_genre"]].unique())
 regions = st.sidebar.multiselect(t["region_label"], options=df_display[t["col_region"]].unique(), default=df_display[t["col_region"]].unique())
 
-filtered_df = df_display[df_display[t["col_genre"]].isin(genres) & df_display[t["col_region"]].isin(regions)]
+# 아이디어 1: 월(Month) 선택 필터 사이드바 배치
+months = st.sidebar.multiselect(t["month_label"], options=sorted(df_display["월_display"].unique()), default=df_display["월_display"].unique())
+
+# 아이디어 2: 티켓 가격 슬라이더 필터 사이드바 배치
+min_price = int(df_display[t["col_price"]].min())
+max_price = int(df_display[t["col_price"]].max())
+price_range = st.sidebar.slider(t["price_label"], min_value=min_price, max_value=max_price, value=(min_price, max_price), step=5000)
+
+# 최종 4중 교집합 필터링 연산
+filtered_df = df_display[
+    df_display[t["col_genre"]].isin(genres) & 
+    df_display[t["col_region"]].isin(regions) & 
+    df_display["월_display"].isin(months) &
+    (df_display[t["col_price"]] >= price_range[0]) & 
+    (df_display[t["col_price"]] <= price_range[1])
+]
 
 # 7. 상단 요약 지표 (Metrics)
 col1, col2, col3 = st.columns(3)
@@ -122,17 +163,24 @@ with col3:
 
 st.markdown("---")
 
-# 8. 데이터 테이블 출력 및 하이퍼링크 설정
+# 8. 데이터 테이블 출력 및 하이퍼링크 다중 설정 (예매처 & 지도)
 st.subheader(t["table_title"])
 if not filtered_df.empty:
     st.dataframe(
-        filtered_df, 
+        # 필요없는 시스템 연산용 '월' 컬럼들은 가리고 노출
+        filtered_df.drop(columns=["월", "월_display"]), 
         use_container_width=True,
         column_config={
             t["col_link"]: st.column_config.LinkColumn(
                 t["col_link"],
-                help="클릭하면 해당 공연의 공식 예매 페이지로 이동합니다" if lang == "한국어" else "Click to open official booking site",
+                help="클릭하면 공식 예매 사이트로 이동합니다",
                 display_text="🔗 " + t["col_link"]
+            ),
+            # 아이디어 3: 테이블 내 지도 바로가기 버튼 컬럼 연동
+            t["col_map"]: st.column_config.LinkColumn(
+                t["col_map"],
+                help="클릭하면 카카오맵에서 공연장 위치를 보여줍니다",
+                display_text="📍 Map"
             )
         }
     )
