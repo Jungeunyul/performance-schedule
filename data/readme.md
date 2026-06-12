@@ -1,6 +1,6 @@
 # 📂 data/ (Project Assets Directory)
 
-This folder integrates and manages the core dataset, final presentation slides, and the speech script for the **'Korea Dance Performance Tracking Dashboard'** project.
+This folder integrates and manages the core dataset, final presentation materials, and the presentation speech script for the **'Korea Dance Performance Tracking Dashboard'** project.
 
 ---
 
@@ -9,7 +9,9 @@ This folder integrates and manages the core dataset, final presentation slides, 
 | File Name | Format | Description & Role |
 | :--- | :--- | :--- |
 | **`data.csv`** | CSV Data | A structured dataset containing 40 major Korean dance performances used for dashboard visualization. |
+| **`presentation_script.docx`** | Word (DOCX) | The complete presentation speech script written in both English and Korean. |
 | **`art and big data ppt.pptx`** | PPTX | The final presentation slides covering the project's background, design goals, and development process. |
+| **`art and big data ppt.pdf`** | PDF | A PDF version of the presentation slides for instant viewing within the GitHub interface without downloading. |
 
 ---
 
@@ -24,11 +26,11 @@ This folder integrates and manages the core dataset, final presentation slides, 
 
 ---
 
-## 🎤 2. Presentation & Script Guide (`art and big data ppt.pptx`)
-* **Final Presentation Slides:** Summarizes the core achievements with a focus on the engineering development lifecycle: *Planning ➔ Structuring ➔ UX Implementation ➔ Deployment & Optimization*.
-* **Speech Script (Embedded/Included):**
+## 🎤 2. Presentation & Script Guide
+* **Final Presentation Slides (`art and big data ppt.pptx` / `.pdf`):** Summarizes the core achievements with a focus on the engineering development lifecycle: *Planning ➔ Structuring ➔ UX Implementation ➔ Deployment & Optimization*.
+* **Speech Script (`presentation_script.docx`):**
+  - Contains complete, professional scripts optimized for academic review.
   - Emphasizes the artistic management perspective driven by a dance major.
-  - Demonstrates technical troubleshooting and problem-solving through data-code decoupling.
   - Explains the execution of critical UX elements: the 4-tier intersection filter, bilingual layout toggle, and interactive location service (**📍 Map**).
 
 ---
