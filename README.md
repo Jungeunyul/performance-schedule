@@ -36,6 +36,11 @@
 
 <br>
 
+## 🌐 Live Demo
+👉 **[Click Here to View the Live Dashboard (Streamlit Cloud)](https://performance-schedule.streamlit.app/)**
+
+<br>
+
 ## 🚀 Key Features
 * 📊 **Data Visualization:** Provides interactive charts analyzing ticket price distributions and genre ratios.
 * 🔍 **Smart Filtering:** Offers customized searches by performance dates, venue locations, and price ranges.
@@ -47,8 +52,12 @@
 To run this dashboard locally, follow these steps in your terminal:
 
 ```bash
-# 1. Install required libraries
+# 1. Clone the repository
+git clone [https://github.com/Jungeunyul/performance-schedule.git](https://github.com/Jungeunyul/performance-schedule.git)
+cd performance-schedule
+
+# 2. Install required libraries
 pip install -r requirements.txt
 
-# 2. Run the Streamlit server
+# 3. Run the Streamlit server
 streamlit run app.py
